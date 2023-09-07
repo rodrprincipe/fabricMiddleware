@@ -1,9 +1,8 @@
 package com.reply.pay.fabrick.fabrickMiddleware;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
-import lombok.Setter;
+import com.reply.pay.fabrick.fabrickMiddleware.exception.RestServiceException;
+import com.reply.pay.fabrick.fabrickMiddleware.exception.RestServiceException.RestTemplateErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
@@ -12,8 +11,6 @@ import org.springframework.web.client.ResponseErrorHandler;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
@@ -56,65 +53,20 @@ public class CustomResponseErrorHandler
 
                 ObjectMapper mapper = new ObjectMapper();
 
-                RestTemplateResponseError restTemplateError =
+                RestTemplateErrorResponse restTemplateErrorResponse =
                         mapper.readValue(
                                 httpBodyResponse,
-                                RestTemplateResponseError.class);
+                                RestTemplateErrorResponse.class);
 
                 throw new RestServiceException(
-                        "host",
+                        "<ENDPOINT>",
                         HttpStatus.valueOf(response.getStatusCode().value()),
-                        restTemplateError.getErrors().get(0).description);
+                        String.format("%s - %s",
+                                restTemplateErrorResponse.getErrors().get(0).getCode(),
+                                restTemplateErrorResponse.getErrors().get(0).getDescription()));
             }
 
         }
     }
 
-    // Custom runtime exception
-    public class RestServiceException extends RuntimeException {
-
-        private String serviceName;
-        private HttpStatus statusCode;
-        private String error;
-
-        public RestServiceException(
-                String serviceName,
-                HttpStatus statusCode,
-                String error) {
-
-            super(error);
-            this.serviceName = serviceName;
-            this.statusCode = statusCode;
-            this.error = error;
-        }
-    }
-
-    // Error Response POJO
-    @Getter
-    @Setter
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class RestTemplateResponseError {
-        private String status;
-        private String error;
-        private List<RestTemplateErrorElement> errors;
-        private Object payload;
-    }
-
-    @Getter
-    @Setter
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class RestTemplateErrorElement {
-        private String code;
-        private String description;
-        private String params;
-    }
-
-    @Getter
-    @Setter
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class RestTemplatePayloadElement {
-        private String code;
-        private String description;
-        private String params;
-    }
 }
