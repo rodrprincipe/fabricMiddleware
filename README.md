@@ -1,5 +1,5 @@
-# fabricMiddleware
-fabric middleware demo
+# fabrickMiddleware
+fabrick middleware demo
 
 boilerplate used to bootstrap
 https://www.baeldung.com/spring-boot-start
