@@ -1,4 +1,4 @@
-package com.reply.pay.fabric.fabricMiddleware;
+package com.reply.pay.fabrick.fabrickMiddleware;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

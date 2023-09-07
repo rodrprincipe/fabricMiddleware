@@ -1,13 +1,13 @@
-package com.reply.pay.fabric.fabricMiddleware;
+package com.reply.pay.fabrick.fabrickMiddleware;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class FabricMiddlewareApplication {
+public class FabrickMiddlewareApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(FabricMiddlewareApplication.class, args);
+		SpringApplication.run(FabrickMiddlewareApplication.class, args);
 	}
 
 }
