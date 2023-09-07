@@ -29,20 +29,6 @@ public class CustomResponseErrorHandler
     public void handleError(ClientHttpResponse response)
             throws IOException {
 
-//        if (httpResponse.getStatusCode().is5xxServerError()) {
-//            // handle SERVER_ERROR
-//            throw new HttpClientErrorException(HttpStatus.OK);
-//
-//        } else
-//        if (httpResponse.getStatusCode().is4xxClientError()) {
-//
-//            // handle CLIENT_ERROR
-//            throw new HttpClientErrorException(HttpStatus.OK);
-//        }
-//        if (httpResponse.getStatusCode() == HttpStatus.NOT_FOUND) {
-//            throw new NotFoundException();
-//        }
-
         if (response.getStatusCode().is4xxClientError()
                 || response.getStatusCode().is5xxServerError()) {
 
@@ -59,7 +45,7 @@ public class CustomResponseErrorHandler
                                 RestTemplateErrorResponse.class);
 
                 throw new RestServiceException(
-                        "<ENDPOINT>",
+                        "<DownstreamAPI>",
                         HttpStatus.valueOf(response.getStatusCode().value()),
                         String.format("%s - %s",
                                 restTemplateErrorResponse.getErrors().get(0).getCode(),
