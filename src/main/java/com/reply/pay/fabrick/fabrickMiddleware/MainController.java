@@ -84,7 +84,27 @@ public class MainController {
     }
 
 
-        return new ResponseEntity<>(responseBody, multiValueMap, response.getStatusCode());
+    @PostMapping(
+            value = "/{accountId}/payments/moneyTransfer",
+            consumes = "application/json",
+            produces = "application/json")
+    public ResponseEntity<?> moneyTransfer(@PathVariable String accountId,
+                                           @RequestBody CreateMoneyTransferRequest createMoneyTransferRequest) {
+        String moneyTransferUrl = downstreamUrl + "/" + accountId + "/" + "/payments/money-transfers";
+
+        RequestEntity<CreateMoneyTransferRequest> requestEntity =
+                RequestEntity
+                        .post(URI.create(moneyTransferUrl))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(createMoneyTransferRequest);
+
+        ResponseEntity<DownstreamSuccessfulResponsePayloadMoneyTransfer> response =
+                restTemplate.exchange(
+                        requestEntity,
+                        DownstreamSuccessfulResponsePayloadMoneyTransfer.class);
+
+        return new ResponseEntity<>(response.getBody(), response.getHeaders(), response.getStatusCode());
+
     }
 
 }
