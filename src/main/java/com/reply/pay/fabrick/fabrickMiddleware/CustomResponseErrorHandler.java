@@ -1,8 +1,9 @@
 package com.reply.pay.fabrick.fabrickMiddleware;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.reply.pay.fabrick.fabrickMiddleware.exception.NotFoundException;
 import com.reply.pay.fabrick.fabrickMiddleware.exception.RestServiceException;
-import com.reply.pay.fabrick.fabrickMiddleware.exception.RestServiceException.RestTemplateErrorResponse;
+import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
@@ -11,11 +12,11 @@ import org.springframework.web.client.ResponseErrorHandler;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Component
-public class CustomResponseErrorHandler
-        implements ResponseErrorHandler {
+public class CustomResponseErrorHandler implements ResponseErrorHandler {
 
     @Override
     public boolean hasError(ClientHttpResponse httpResponse)
@@ -39,17 +40,27 @@ public class CustomResponseErrorHandler
 
                 ObjectMapper mapper = new ObjectMapper();
 
-                RestTemplateErrorResponse restTemplateErrorResponse =
+                DownstreamErrorResponse restTemplateErrorResponse =
                         mapper.readValue(
                                 httpBodyResponse,
-                                RestTemplateErrorResponse.class);
+                                DownstreamErrorResponse.class);
 
-                throw new RestServiceException(
-                        "<DownstreamAPI>",
-                        HttpStatus.valueOf(response.getStatusCode().value()),
-                        String.format("%s - %s",
-                                restTemplateErrorResponse.getErrors().get(0).getCode(),
-                                restTemplateErrorResponse.getErrors().get(0).getDescription()));
+                String code = restTemplateErrorResponse.getErrors().get(0).getCode();
+                String description = restTemplateErrorResponse.getErrors().get(0).getDescription();
+
+                if (Objects.equals(code, "REQ004")) {
+                    throw new NotFoundException(
+                            "<DownstreamAPI>",
+                            HttpStatus.valueOf(response.getStatusCode().value()),
+                            code,
+                            description);
+                } else {
+                    throw new RestServiceException(
+                            "<DownstreamAPI>",
+                            HttpStatus.valueOf(response.getStatusCode().value()),
+                            code,
+                            description);
+                }
             }
 
         }

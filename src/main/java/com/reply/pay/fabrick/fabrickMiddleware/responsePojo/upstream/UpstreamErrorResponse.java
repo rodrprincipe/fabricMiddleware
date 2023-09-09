@@ -1,7 +1,10 @@
-package com.reply.pay.fabrick.fabrickMiddleware;
+package com.reply.pay.fabrick.fabrickMiddleware.responsePojo.upstream;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.reply.pay.fabrick.fabrickMiddleware.exception.RestServiceException;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -9,7 +12,10 @@ import java.time.format.DateTimeFormatter;
 
 @Getter
 @Setter
-public class ErrorResponse {
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class UpstreamErrorResponse {
 
     private String timestamp;
 
@@ -19,8 +25,11 @@ public class ErrorResponse {
     /** HTTP Reason phrase */
     private String error;
 
+    /** A code that describe the error thrown when calling the downstream API */
+    private String code;
+
     /** A message that describe the error thrown when calling the downstream API */
-    private String message;
+    private String description;
 
 //    /** Downstream API name that has been called by this application */
 //    private DownstreamApi api;
@@ -28,13 +37,13 @@ public class ErrorResponse {
     /** URI that has been called */
     private String path;
 
-    public ErrorResponse(RestServiceException ex, String path) {
+    public UpstreamErrorResponse(RestServiceException ex, String path) {
         this.timestamp = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now());
-        this.status = ex.getStatusCode().value();
-        this.error = ex.getStatusCode().getReasonPhrase();
-        this.message = ex.getError();
+        this.status = ex.getHttpStatus().value();
+        this.error = ex.getHttpStatus().getReasonPhrase();
+        this.code = ex.getCode();
+        this.description = ex.getDescription();
 //        this.api = ex.getApi();
         this.path = path;
     }
-
 }

@@ -1,13 +1,9 @@
 package com.reply.pay.fabrick.fabrickMiddleware.exception;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.http.HttpStatus;
-
-import java.util.List;
-import java.util.Map;
 
 // Custom runtime exception
 @Getter
@@ -15,36 +11,22 @@ import java.util.Map;
 public class RestServiceException extends RuntimeException {
 
     private String serviceName;
-    private HttpStatus statusCode;
-    private String error;
+    private HttpStatus httpStatus;
+    private String code;
+    private String description;
+
+
 
     public RestServiceException(
             String serviceName,
-            HttpStatus statusCode,
-            String error) {
+            HttpStatus httpStatus,
+            String code,
+            String description) {
 
-        super(error);
+        super(code + " - " + description);
         this.serviceName = serviceName;
-        this.statusCode = statusCode;
-        this.error = error;
-    }
-
-    // Error Response POJO
-    @Getter
-    @Setter
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class RestTemplateErrorResponse {
-        private String status;
-        private List<RestTemplateErrorElement> errors;
-        private Map payload;
-    }
-
-    @Getter
-    @Setter
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class RestTemplateErrorElement {
-        private String code;
-        private String description;
-        private String params;
+        this.httpStatus = httpStatus;
+        this.code = code;
+        this.description = description;
     }
 }
