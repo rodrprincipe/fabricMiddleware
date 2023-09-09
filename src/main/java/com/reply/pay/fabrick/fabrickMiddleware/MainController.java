@@ -3,20 +3,22 @@ package com.reply.pay.fabrick.fabrickMiddleware;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
+import com.reply.pay.fabrick.fabrickMiddleware.pojoJson2csharp.CreateMoneyTransferRequest;
+import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayloadBalance;
+import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayloadMoneyTransfer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.*;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.RequestEntity;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.reactive.result.method.annotation.RequestMappingHandlerMapping;
 
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.net.URI;
 
 @Controller
 @RequestMapping("/bankAccount")
@@ -24,18 +26,17 @@ public class MainController {
     @Value("${spring.application.name}")
     String appName;
 
-    private final String API_KEY = "FXOVVXXHVCPVPBZXIJOBGUGSKHDNFRRQJP";
     private final String baseUrl = "https://sandbox.platfr.io";
     private final String path = "/api/gbs/banking/v4.0/accounts";
     private final String downstreamUrl = baseUrl + path;
 
-    private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
     @Autowired
     public MainController(RestTemplateBuilder builder) {
         this.restTemplate = builder.errorHandler(new CustomResponseErrorHandler())
                 .defaultHeader("Auth-Schema", "S2S")
-                .defaultHeader("Api-Key", API_KEY)
+                .defaultHeader("Api-Key", "FXOVVXXHVCPVPBZXIJOBGUGSKHDNFRRQJP")
                 .build();
 
     }
@@ -47,81 +48,43 @@ public class MainController {
     }
 
     @GetMapping("/{accountId}/balance")
-    public ResponseEntity<?> balance(@PathVariable String accountId, HttpServletRequest httpServletRequest, RequestMappingHandlerMapping mapping) throws JsonProcessingException {
+    public ResponseEntity<?> balance(@PathVariable String accountId) throws JsonProcessingException {
 
         String balanceUrl = downstreamUrl + "/" + accountId + "/balance";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+        ResponseEntity<String> response = restTemplate.exchange(balanceUrl, HttpMethod.GET, Utilityz.buildHttpEntity(), String.class);
 
-        HttpEntity<String> request = new HttpEntity<>(headers);
+        DownstreamSuccessfulResponsePayloadBalance responsePojo =
+                Utilityz.mapStringToClass(response.getBody(), DownstreamSuccessfulResponsePayloadBalance.class);
 
-        ResponseEntity<String> response = restTemplate.exchange(balanceUrl, HttpMethod.GET, request, String.class);
-
-        String httpBodyResponse = Objects.requireNonNull(response.getBody()).lines()
-                .collect(Collectors.joining(""));
-
-//        JsonNode root = objectMapper.readTree(result);
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode httpBodyResponseJsonNode = mapper.readTree(httpBodyResponse);
-        String responseBody = httpBodyResponseJsonNode.get("payload").toString();
-
-        LinkedMultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap<>();
-        response.getHeaders().toSingleValueMap().forEach(multiValueMap::add);
-
-        return new ResponseEntity<>(responseBody, multiValueMap, response.getStatusCode());
+        return new ResponseEntity<>(mapper.writeValueAsString(responsePojo.getPayload()),
+                Utilityz.getHeaderAsMultiValueMapFrom(response),
+                response.getStatusCode());
     }
 
     @GetMapping("/{accountId}/transactions")
     public ResponseEntity<?> transactions(@PathVariable String accountId,
                                           @RequestParam String fromAccountingDate,
-                                          @RequestParam String toAccountingDate) throws JsonProcessingException {
+                                          @RequestParam String toAccountingDate)
+            throws JsonProcessingException {
 
         String transactionsUrl = downstreamUrl + "/" + accountId + "/" + "transactions"
                 + "?" + "fromAccountingDate=" + fromAccountingDate + "&toAccountingDate=" + toAccountingDate;
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-
-        HttpEntity<String> request = new HttpEntity<>(headers);
-
-        ResponseEntity<String> response = restTemplate.exchange(transactionsUrl, HttpMethod.GET, request, String.class);
-
-        String httpBodyResponse = Objects.requireNonNull(response.getBody()).lines()
-                .collect(Collectors.joining(""));
+        ResponseEntity<String> response = restTemplate.exchange(transactionsUrl, HttpMethod.GET, Utilityz.buildHttpEntity(), String.class);
 
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode httpBodyResponseJsonNode = mapper.readTree(httpBodyResponse);
-        String responseBody = httpBodyResponseJsonNode.get("payload").toString();
 
-        LinkedMultiValueMap<String, String> multiValueMap = new LinkedMultiValueMap<>();
-        response.getHeaders().toSingleValueMap().forEach(multiValueMap::add);
+        JsonNode responseAsJsonNode = mapper.readTree(Utilityz.removeEolTo(response.getBody()));
+
+        String responseBody = responseAsJsonNode.get("payload").toString();
+
+        return new ResponseEntity<>(responseBody, Utilityz.getHeaderAsMultiValueMapFrom(response), response.getStatusCode());
+    }
+
 
         return new ResponseEntity<>(responseBody, multiValueMap, response.getStatusCode());
     }
 
-    @PostMapping("/{accountId}/payments/moneyTransfers")
-    public ResponseEntity<?> transactions(@PathVariable String accountId) {
-        String moneyTransferUrl = downstreamUrl + "/" + accountId + "/" + "/payments/money-transfers";
-        return null;
-
-    }
-//    @GetMapping("/balance2")
-//    public ResponseEntity<?> balance2() {
-//        String balanceUrl = "https://sandbox.platfr.io/api/gbs/banking/v4.0/accounts";
-//
-//       WebClient client = WebClient.builder()
-//                .baseUrl(balanceUrl)
-//                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-//                .defaultHeader("X-Time-Zone", "'Europe/Rome'")
-//                .defaultHeader("Auth-Schema", "S2S")
-//                .defaultHeader("Api-Key", "FXOVVXXHVCPVPBZXIJOBGUGSKHDNFRRQJP")
-//                .build();
-//
-//        UriSpec<RequestBodySpec> uriSpec = client.method(HttpMethod.GET);
-//        RequestBodySpec bodySpec = uriSpec.uri("/14537780/balance");
-//        return null;
-//    }
-
-//TODO error https://www.baeldung.com/spring-rest-template-error-handling
 }
