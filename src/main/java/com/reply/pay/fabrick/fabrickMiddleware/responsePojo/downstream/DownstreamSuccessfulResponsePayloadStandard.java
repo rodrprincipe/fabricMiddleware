@@ -1,6 +1,6 @@
 package com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream;
 
-import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.payload.PayloadMoneyTransfer;
+import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.payload.PayloadStandard;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,9 +13,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 //@JsonIgnoreProperties(ignoreUnknown = true)
-public class DownstreamSuccessfulResponsePayloadMoneyTransfer {
+public class DownstreamSuccessfulResponsePayloadStandard {
     private String status;
     private List<?> error;
-    private PayloadMoneyTransfer payload;
+    private PayloadStandard payload;
 
 }

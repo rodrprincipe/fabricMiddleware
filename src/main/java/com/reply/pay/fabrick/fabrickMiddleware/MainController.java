@@ -3,9 +3,9 @@ package com.reply.pay.fabrick.fabrickMiddleware;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.reply.pay.fabrick.fabrickMiddleware.pojoJson2csharp.CreateMoneyTransferRequest;
-import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayloadBalance;
+import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponse;
 import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayloadMoneyTransfer;
+import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.upstream.payload.CreateMoneyTrasferPayload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.util.Objects;
 
 @Controller
 @RequestMapping("/bankAccount")
@@ -52,15 +53,18 @@ public class MainController {
 
         String balanceUrl = downstreamUrl + "/" + accountId + "/balance";
 
-        ResponseEntity<String> response = restTemplate.exchange(balanceUrl, HttpMethod.GET, Utilityz.buildHttpEntity(), String.class);
-
-        DownstreamSuccessfulResponsePayloadBalance responsePojo =
-                Utilityz.mapStringToClass(response.getBody(), DownstreamSuccessfulResponsePayloadBalance.class);
+        ResponseEntity<DownstreamSuccessfulResponse> responseEntity =
+                restTemplate.exchange(
+                        balanceUrl,
+                        HttpMethod.GET,
+                        Utilityz.buildHttpEntity(),
+                        DownstreamSuccessfulResponse.class);
 
         ObjectMapper mapper = new ObjectMapper();
-        return new ResponseEntity<>(mapper.writeValueAsString(responsePojo.getPayload()),
-                Utilityz.getHeaderAsMultiValueMapFrom(response),
-                response.getStatusCode());
+        return new ResponseEntity<>(
+                mapper.writeValueAsString(Objects.requireNonNull(responseEntity.getBody()).getPayload()),
+                responseEntity.getHeaders(),
+                responseEntity.getStatusCode());
     }
 
     @GetMapping("/{accountId}/transactions")
@@ -89,14 +93,14 @@ public class MainController {
             consumes = "application/json",
             produces = "application/json")
     public ResponseEntity<?> moneyTransfer(@PathVariable String accountId,
-                                           @RequestBody CreateMoneyTransferRequest createMoneyTransferRequest) {
+                                           @RequestBody CreateMoneyTrasferPayload createMoneyTrasferPayload) {
         String moneyTransferUrl = downstreamUrl + "/" + accountId + "/" + "/payments/money-transfers";
 
-        RequestEntity<CreateMoneyTransferRequest> requestEntity =
+        RequestEntity<CreateMoneyTrasferPayload> requestEntity =
                 RequestEntity
                         .post(URI.create(moneyTransferUrl))
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(createMoneyTransferRequest);
+                        .body(createMoneyTrasferPayload);
 
         ResponseEntity<DownstreamSuccessfulResponsePayloadMoneyTransfer> response =
                 restTemplate.exchange(

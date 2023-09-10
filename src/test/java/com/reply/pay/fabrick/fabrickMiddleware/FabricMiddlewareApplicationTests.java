@@ -2,7 +2,8 @@ package com.reply.pay.fabrick.fabrickMiddleware;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.payload.PayloadBalance;
-import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.payload.PayloadGeneric;
+import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.payload.PayloadMoneyTransfer;
+import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.payload.PayloadStandard;
 import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.upstream.UpstreamErrorResponse;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
@@ -94,7 +96,7 @@ class FabricMiddlewareApplicationTests {
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
 
 
-        PayloadGeneric payloadGeneric = Utilityz.mapStringToClass(response.getBody().asString(), PayloadGeneric.class);
+        PayloadStandard payloadGeneric = Utilityz.mapStringToClass(response.getBody().asString(), PayloadStandard.class);
         assertTrue(payloadGeneric.getList().isEmpty());
     }
 
@@ -102,11 +104,77 @@ class FabricMiddlewareApplicationTests {
     public void whenGetTransactions2019_02_28_thenOK() throws JsonProcessingException {
         final Response response = RestAssured.get(API_ROOT + "/" + ACCOUNT_ID_KO +
                 "/transactions?fromAccountingDate=2019-01-28&toAccountingDate=2019-01-28");
-        assertEquals(HttpStatus.valueOf(403).value(), response.getStatusCode());
+        assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatusCode());
 
-        PayloadGeneric payloadGeneric = Utilityz.mapStringToClass(response.getBody().asString(), PayloadGeneric.class);
+        PayloadStandard payloadGeneric = Utilityz.mapStringToClass(response.getBody().asString(), PayloadStandard.class);
         assertFalse(payloadGeneric.getList().isEmpty());
     }
 
+    @Test
+    public void whenPostValidMoneyTransfer_thenOK() throws JsonProcessingException {
+        final Response response =
+                RestAssured
+                        .given()
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .body(MONEY_TRASFER_BODY)
+                        .post(API_ROOT + "/" + ACCOUNT_ID_OK + "payments/moneyTransfer");
 
+        assertEquals(HttpStatus.OK.value(), response.getStatusCode());
+
+        PayloadStandard payloadGeneric = Utilityz.mapStringToClass(response.getBody().asString(), PayloadStandard.class);
+        assertFalse(payloadGeneric.getList().isEmpty());
+    }
+
+    @Test
+    public void whenEmptyBodyMoneyTransfer_thenOK() throws JsonProcessingException {
+        final Response response =
+                RestAssured
+                        .given()
+                        .contentType(MediaType.APPLICATION_JSON_VALUE)
+                        .body("")
+                        .post(API_ROOT + "/" + ACCOUNT_ID_OK + "payments/moneyTransfer");
+
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode());
+
+        PayloadMoneyTransfer payloadMoneyTransfer = Utilityz.mapStringToClass(response.getBody().asString(), PayloadMoneyTransfer.class);
+        assertNotNull(payloadMoneyTransfer.getMoneyTransferId());
+    }
+
+    private final String MONEY_TRASFER_BODY =
+            "{\n" +
+                    "    \"creditor\": {\n" +
+                    "        \"name\": \"John Doe\",\n" +
+                    "        \"account\": {\n" +
+                    "            \"accountCode\": \"IT23A0336844430152923804660\",\n" +
+                    "            \"bicCode\": \"SELBIT2BXXX\"\n" +
+                    "        },\n" +
+                    "        \"address\": {\n" +
+                    "            \"address\": null,\n" +
+                    "            \"city\": null,\n" +
+                    "            \"countryCode\": null\n" +
+                    "        }\n" +
+                    "    },\n" +
+                    "    \"executionDate\": \"2019-04-01\",\n" +
+                    "    \"uri\": \"REMITTANCE_INFORMATION\",\n" +
+                    "    \"description\": \"Payment invoice 75/2017\",\n" +
+                    "    \"amount\": 800,\n" +
+                    "    \"currency\": \"EUR\",\n" +
+                    "    \"isUrgent\": false,\n" +
+                    "    \"isInstant\": false,\n" +
+                    "    \"feeType\": \"SHA\",\n" +
+                    "    \"feeAccountId\": \"14537780\",\n" +
+                    "    \"taxRelief\": {\n" +
+                    "        \"taxReliefId\": \"L449\",\n" +
+                    "        \"isCondoUpgrade\": false,\n" +
+                    "        \"creditorFiscalCode\": \"56258745832\",\n" +
+                    "        \"beneficiaryType\": \"NATURAL_PERSON\",\n" +
+                    "        \"naturalPersonBeneficiary\": {\n" +
+                    "            \"fiscalCode1\": \"MRLFNC81L04A859L\"\n" +
+                    "        },\n" +
+                    "        \"legalPersonBeneficiary\": {\n" +
+                    "            \"fiscalCode\": \"MRLFNC81L04A859L\",\n" +
+                    "            \"legalRepresentativeFiscalCode\": null\n" +
+                    "        }\n" +
+                    "    }\n" +
+                    "}";
 }

@@ -2,6 +2,7 @@ package com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.payload;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayload;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PayloadGeneric {
+public class PayloadStandard extends DownstreamSuccessfulResponsePayload {
 
     public ArrayList<Object> list;
     public Pagination pagination;

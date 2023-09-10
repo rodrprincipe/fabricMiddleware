@@ -1,48 +1,35 @@
-package com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.payload;
+package com.reply.pay.fabrick.fabrickMiddleware.responsePojo.upstream.payload;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayload;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.ArrayList;
-import java.util.Date;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PayloadMoneyTransfer extends DownstreamSuccessfulResponsePayload {
-    public String moneyTransferId;
-    public String status;
-    public String direction;
+public class CreateMoneyTrasferPayload {
     public Creditor creditor;
-    public Debtor debtor;
-    public String cro;
+    public String executionDate;
     public String uri;
-    public String trn;
     public String description;
-    public Date createdDatetime;
-    public Date accountedDatetime;
-    public String debtorValueDate;
-    public String creditorValueDate;
-    public Amount amount;
+    public int amount;
+    public String currency;
     public boolean isUrgent;
     public boolean isInstant;
     public String feeType;
     public String feeAccountId;
-    public ArrayList<Fee> fees;
-    public boolean hasTaxRelief;
+    public TaxRelief taxRelief;
 
     @Getter
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public class Account {
+    public static class Account {
         public String accountCode;
         public String bicCode;
     }
@@ -52,7 +39,7 @@ public class PayloadMoneyTransfer extends DownstreamSuccessfulResponsePayload {
     @NoArgsConstructor
     @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public class Address {
+    public static class Address {
         public Object address;
         public Object city;
         public Object countryCode;
@@ -63,21 +50,7 @@ public class PayloadMoneyTransfer extends DownstreamSuccessfulResponsePayload {
     @NoArgsConstructor
     @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public class Amount {
-        public int debtorAmount;
-        public String debtorCurrency;
-        public int creditorAmount;
-        public String creditorCurrency;
-        public String creditorCurrencyDate;
-        public int exchangeRate;
-    }
-
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public class Creditor {
+    public static class Creditor {
         public String name;
         public Account account;
         public Address address;
@@ -88,9 +61,9 @@ public class PayloadMoneyTransfer extends DownstreamSuccessfulResponsePayload {
     @NoArgsConstructor
     @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public class Debtor {
-        public String name;
-        public Account account;
+    public static class LegalPersonBeneficiary {
+        public Object fiscalCode;
+        public Object legalRepresentativeFiscalCode;
     }
 
     @Getter
@@ -98,10 +71,25 @@ public class PayloadMoneyTransfer extends DownstreamSuccessfulResponsePayload {
     @NoArgsConstructor
     @AllArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public class Fee {
-        public String feeCode;
-        public String description;
-        public double amount;
-        public String currency;
+    public static class NaturalPersonBeneficiary {
+        public String fiscalCode1;
+        public Object fiscalCode2;
+        public Object fiscalCode3;
+        public Object fiscalCode4;
+        public Object fiscalCode5;
+    }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class TaxRelief {
+        public String taxReliefId;
+        public boolean isCondoUpgrade;
+        public String creditorFiscalCode;
+        public String beneficiaryType;
+        public NaturalPersonBeneficiary naturalPersonBeneficiary;
+        public LegalPersonBeneficiary legalPersonBeneficiary;
     }
 }

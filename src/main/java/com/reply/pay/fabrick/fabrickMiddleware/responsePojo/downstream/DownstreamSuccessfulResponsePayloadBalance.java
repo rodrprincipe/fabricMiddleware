@@ -18,5 +18,4 @@ public class DownstreamSuccessfulResponsePayloadBalance {
     private List<?> error;
     private PayloadBalance payload;
 
-
 }
