@@ -15,6 +15,5 @@ import java.util.List;
 public class DownstreamSuccessfulResponse {
     private String status;
     private List<?> error;
-    private DownstreamSuccessfulResponsePayload payload;
 
 }

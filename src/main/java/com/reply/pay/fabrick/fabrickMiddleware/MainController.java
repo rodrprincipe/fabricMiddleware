@@ -1,10 +1,10 @@
 package com.reply.pay.fabrick.fabrickMiddleware;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponse;
+import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayloadBalance;
 import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayloadMoneyTransfer;
+import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayloadStandard;
 import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.upstream.payload.CreateMoneyTrasferPayload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -53,12 +53,12 @@ public class MainController {
 
         String balanceUrl = downstreamUrl + "/" + accountId + "/balance";
 
-        ResponseEntity<DownstreamSuccessfulResponse> responseEntity =
+        ResponseEntity<DownstreamSuccessfulResponsePayloadBalance> responseEntity =
                 restTemplate.exchange(
                         balanceUrl,
                         HttpMethod.GET,
                         Utilityz.buildHttpEntity(),
-                        DownstreamSuccessfulResponse.class);
+                        DownstreamSuccessfulResponsePayloadBalance.class);
 
         ObjectMapper mapper = new ObjectMapper();
         return new ResponseEntity<>(
@@ -76,15 +76,18 @@ public class MainController {
         String transactionsUrl = downstreamUrl + "/" + accountId + "/" + "transactions"
                 + "?" + "fromAccountingDate=" + fromAccountingDate + "&toAccountingDate=" + toAccountingDate;
 
-        ResponseEntity<String> response = restTemplate.exchange(transactionsUrl, HttpMethod.GET, Utilityz.buildHttpEntity(), String.class);
+        ResponseEntity<DownstreamSuccessfulResponsePayloadStandard> responseEntity =
+                restTemplate.exchange(
+                        transactionsUrl,
+                        HttpMethod.GET,
+                        Utilityz.buildHttpEntity(),
+                        DownstreamSuccessfulResponsePayloadStandard.class);
 
         ObjectMapper mapper = new ObjectMapper();
-
-        JsonNode responseAsJsonNode = mapper.readTree(Utilityz.removeEolTo(response.getBody()));
-
-        String responseBody = responseAsJsonNode.get("payload").toString();
-
-        return new ResponseEntity<>(responseBody, Utilityz.getHeaderAsMultiValueMapFrom(response), response.getStatusCode());
+        return new ResponseEntity<>(
+                mapper.writeValueAsString(Objects.requireNonNull(responseEntity.getBody()).getPayload()),
+                responseEntity.getHeaders(),
+                responseEntity.getStatusCode());
     }
 
 
@@ -93,7 +96,7 @@ public class MainController {
             consumes = "application/json",
             produces = "application/json")
     public ResponseEntity<?> moneyTransfer(@PathVariable String accountId,
-                                           @RequestBody CreateMoneyTrasferPayload createMoneyTrasferPayload) {
+                                           @RequestBody CreateMoneyTrasferPayload createMoneyTrasferPayload) throws JsonProcessingException {
         String moneyTransferUrl = downstreamUrl + "/" + accountId + "/" + "/payments/money-transfers";
 
         RequestEntity<CreateMoneyTrasferPayload> requestEntity =
@@ -102,12 +105,16 @@ public class MainController {
                         .contentType(MediaType.APPLICATION_JSON)
                         .body(createMoneyTrasferPayload);
 
-        ResponseEntity<DownstreamSuccessfulResponsePayloadMoneyTransfer> response =
+        ResponseEntity<DownstreamSuccessfulResponsePayloadMoneyTransfer> responseEntity =
                 restTemplate.exchange(
                         requestEntity,
                         DownstreamSuccessfulResponsePayloadMoneyTransfer.class);
 
-        return new ResponseEntity<>(response.getBody(), response.getHeaders(), response.getStatusCode());
+        ObjectMapper mapper = new ObjectMapper();
+        return new ResponseEntity<>(
+                mapper.writeValueAsString(Objects.requireNonNull(responseEntity.getBody()).getPayload()),
+                responseEntity.getHeaders(),
+                responseEntity.getStatusCode());
 
     }
 

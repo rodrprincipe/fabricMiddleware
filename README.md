@@ -46,7 +46,10 @@ curl --request POST 'http://localhost:8081/bankAccount/{accountId}/moneyTransfer
 ```
 Replace parameters with proper values of:
 - `{accountId}`
-- `{YYYY-MM-DD}`
+  - 14537780
+- `{YYYY-MM-DD}` 
+  - 2019-01-01
+  - 2019-12-31
 - `{payload}`
 
 ### Example of payload for money transfer

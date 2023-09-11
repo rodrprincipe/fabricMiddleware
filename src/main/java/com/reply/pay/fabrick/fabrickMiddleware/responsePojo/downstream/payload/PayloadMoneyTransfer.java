@@ -1,7 +1,6 @@
 package com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.payload;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayload;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,7 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PayloadMoneyTransfer extends DownstreamSuccessfulResponsePayload {
+public class PayloadMoneyTransfer {
     public String moneyTransferId;
     public String status;
     public String direction;
