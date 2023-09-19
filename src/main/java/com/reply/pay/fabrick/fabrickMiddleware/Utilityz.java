@@ -37,4 +37,9 @@ public class Utilityz {
                 removeEolTo(string),
                 clazz);
     }
+
+    static String json(Object o) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(o);
+    }
 }

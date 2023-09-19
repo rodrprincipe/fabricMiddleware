@@ -7,6 +7,7 @@ import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.Downstrea
 import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayloadStandard;
 import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.payload.PayloadBalance;
 import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.upstream.payload.CreateMoneyTrasferPayload;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -24,6 +25,7 @@ import java.util.Objects;
 
 @Controller
 @RequestMapping("/bankAccount")
+@Log4j2
 public class MainController {
     @Value("${spring.application.name}")
     String appName;
@@ -34,7 +36,7 @@ public class MainController {
 
     private final RestTemplate restTemplate;
 
-    private MainService mainService;
+    private final MainService mainService;
 
     @Autowired
     public MainController(RestTemplateBuilder builder) {
@@ -43,8 +45,7 @@ public class MainController {
                 .defaultHeader("Api-Key", "FXOVVXXHVCPVPBZXIJOBGUGSKHDNFRRQJP")
                 .build();
 
-         this.mainService = new MainService();
-
+        this.mainService = new MainService();
     }
 
     @GetMapping("/")
@@ -55,6 +56,7 @@ public class MainController {
 
     @GetMapping("/{accountId}/balance")
     public ResponseEntity<PayloadBalance> balance(@PathVariable String accountId) throws JsonProcessingException {
+        log.info("UpStream Request [GET][balance] accountId: " + accountId);
 
         String balanceUrl = downstreamUrl + "/" + accountId + "/balance";
 
@@ -65,6 +67,8 @@ public class MainController {
                         Utilityz.buildHttpEntity(),
                         DownstreamSuccessfulResponsePayloadBalance.class);
 
+        log.info(String.format("DownStream Response [%s] %s", responseEntity.getStatusCode(), Utilityz.json(responseEntity.getBody())));
+
         return mainService.balanceService(responseEntity);
     }
 
@@ -73,6 +77,8 @@ public class MainController {
                                           @RequestParam String fromAccountingDate,
                                           @RequestParam String toAccountingDate)
             throws JsonProcessingException {
+        log.info("UpStream Request [GET][transactions] accountId: " + accountId);
+
 
         String transactionsUrl = downstreamUrl + "/" + accountId + "/" + "transactions"
                 + "?" + "fromAccountingDate=" + fromAccountingDate + "&toAccountingDate=" + toAccountingDate;
@@ -84,6 +90,8 @@ public class MainController {
                         Utilityz.buildHttpEntity(),
                         DownstreamSuccessfulResponsePayloadStandard.class);
 
+        log.info(String.format("DownStream Response [%s] %s", responseEntity.getStatusCode(), Utilityz.json(responseEntity.getBody())));
+
         return mainService.transactionService(responseEntity);
     }
 
@@ -93,7 +101,10 @@ public class MainController {
             consumes = "application/json",
             produces = "application/json")
     public ResponseEntity<?> moneyTransfer(@PathVariable String accountId,
-                                           @RequestBody CreateMoneyTrasferPayload createMoneyTrasferPayload) throws JsonProcessingException {
+                                           @RequestBody CreateMoneyTrasferPayload createMoneyTrasferPayload)
+            throws JsonProcessingException {
+        log.info("UpStream Request [POST][moneyTransfer] accountId: " + accountId);
+
         String moneyTransferUrl = downstreamUrl + "/" + accountId + "/" + "/payments/money-transfers";
 
         RequestEntity<CreateMoneyTrasferPayload> requestEntity =
@@ -106,6 +117,8 @@ public class MainController {
                 restTemplate.exchange(
                         requestEntity,
                         DownstreamSuccessfulResponsePayloadMoneyTransfer.class);
+
+        log.info(String.format("DownStream Response [%s] %s", responseEntity.getStatusCode(), Utilityz.json(responseEntity.getBody())));
 
         ObjectMapper mapper = new ObjectMapper();
         return new ResponseEntity<>(
