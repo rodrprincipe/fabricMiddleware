@@ -1,7 +1,6 @@
 package com.reply.pay.fabrick.fabrickMiddleware;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayloadBalance;
 import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayloadMoneyTransfer;
 import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayloadStandard;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
-import java.util.Objects;
 
 @Controller
 @RequestMapping("/bankAccount")
@@ -120,11 +118,7 @@ public class MainController {
 
         log.info(String.format("DownStream Response [%s] %s", responseEntity.getStatusCode(), Utilityz.json(responseEntity.getBody())));
 
-        ObjectMapper mapper = new ObjectMapper();
-        return new ResponseEntity<>(
-                mapper.writeValueAsString(Objects.requireNonNull(responseEntity.getBody()).getPayload()),
-                responseEntity.getHeaders(),
-                responseEntity.getStatusCode());
+        return mainService.moneyTransferService(responseEntity);
 
     }
 
