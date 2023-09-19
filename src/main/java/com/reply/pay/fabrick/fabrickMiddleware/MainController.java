@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayloadBalance;
 import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayloadMoneyTransfer;
 import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayloadStandard;
+import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.payload.PayloadBalance;
 import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.upstream.payload.CreateMoneyTrasferPayload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,12 +34,16 @@ public class MainController {
 
     private final RestTemplate restTemplate;
 
+    private MainService mainService;
+
     @Autowired
     public MainController(RestTemplateBuilder builder) {
         this.restTemplate = builder.errorHandler(new CustomResponseErrorHandler())
                 .defaultHeader("Auth-Schema", "S2S")
                 .defaultHeader("Api-Key", "FXOVVXXHVCPVPBZXIJOBGUGSKHDNFRRQJP")
                 .build();
+
+         this.mainService = new MainService();
 
     }
 
@@ -49,7 +54,7 @@ public class MainController {
     }
 
     @GetMapping("/{accountId}/balance")
-    public ResponseEntity<?> balance(@PathVariable String accountId) throws JsonProcessingException {
+    public ResponseEntity<PayloadBalance> balance(@PathVariable String accountId) throws JsonProcessingException {
 
         String balanceUrl = downstreamUrl + "/" + accountId + "/balance";
 
@@ -60,11 +65,7 @@ public class MainController {
                         Utilityz.buildHttpEntity(),
                         DownstreamSuccessfulResponsePayloadBalance.class);
 
-        ObjectMapper mapper = new ObjectMapper();
-        return new ResponseEntity<>(
-                mapper.writeValueAsString(Objects.requireNonNull(responseEntity.getBody()).getPayload()),
-                responseEntity.getHeaders(),
-                responseEntity.getStatusCode());
+        return mainService.balanceService(responseEntity);
     }
 
     @GetMapping("/{accountId}/transactions")
@@ -83,11 +84,7 @@ public class MainController {
                         Utilityz.buildHttpEntity(),
                         DownstreamSuccessfulResponsePayloadStandard.class);
 
-        ObjectMapper mapper = new ObjectMapper();
-        return new ResponseEntity<>(
-                mapper.writeValueAsString(Objects.requireNonNull(responseEntity.getBody()).getPayload()),
-                responseEntity.getHeaders(),
-                responseEntity.getStatusCode());
+        return mainService.transactionService(responseEntity);
     }
 
 
