@@ -45,7 +45,7 @@ public class CustomResponseExceptionHandler extends ResponseEntityExceptionHandl
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<?> notValid(MethodArgumentNotValidException ex, HttpServletRequest request) {
 
-        // we can predispose to respond a list of errors, let's just reply the first missing field
+        // we can predispose to respond a list of errors, let's just reply with the first missing or invalid field
         String error = ex.getAllErrors().get(0).getDefaultMessage().toString();
 
         return new ResponseEntity<>(

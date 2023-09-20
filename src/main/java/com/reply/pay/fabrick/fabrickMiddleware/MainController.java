@@ -1,9 +1,6 @@
 package com.reply.pay.fabrick.fabrickMiddleware;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayloadBalance;
-import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayloadMoneyTransfer;
-import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayloadStandard;
 import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.payload.PayloadBalance;
 import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.upstream.payload.CreateMoneyTrasferPayload;
 import jakarta.validation.Valid;
@@ -12,16 +9,12 @@ import org.apache.commons.validator.GenericValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
-import java.net.URI;
 import java.time.LocalDate;
 
 @Controller
@@ -31,22 +24,11 @@ public class MainController {
     @Value("${spring.application.name}")
     String appName;
 
-    private final String baseUrl = "https://sandbox.platfr.io";
-    private final String path = "/api/gbs/banking/v4.0/accounts";
-    private final String downstreamUrl = baseUrl + path;
-
-    private final RestTemplate restTemplate;
-
     private final MainService mainService;
 
     @Autowired
     public MainController(RestTemplateBuilder builder) {
-        this.restTemplate = builder.errorHandler(new CustomResponseErrorHandler())
-                .defaultHeader("Auth-Schema", "S2S")
-                .defaultHeader("Api-Key", "FXOVVXXHVCPVPBZXIJOBGUGSKHDNFRRQJP")
-                .build();
-
-        this.mainService = new MainService();
+        this.mainService = new MainService(builder);
     }
 
     @GetMapping("/")
@@ -59,22 +41,13 @@ public class MainController {
     public ResponseEntity<PayloadBalance> balance(@PathVariable String accountId) throws JsonProcessingException {
         log.info("UpStream Request [GET][balance] accountId: " + accountId);
 
-        if(!GenericValidator.isLong(accountId)){
+        if (!GenericValidator.isLong(accountId)) {
             throw new IllegalArgumentException("AccountId is not valid");
         }
 
-        String balanceUrl = downstreamUrl + "/" + accountId + "/balance";
-
-        ResponseEntity<DownstreamSuccessfulResponsePayloadBalance> responseEntity =
-                restTemplate.exchange(
-                        balanceUrl,
-                        HttpMethod.GET,
-                        Utilityz.buildHttpEntity(),
-                        DownstreamSuccessfulResponsePayloadBalance.class);
-
-        log.info(String.format("DownStream Response [%s] %s", responseEntity.getStatusCode(), Utilityz.json(responseEntity.getBody())));
-
-        return mainService.balanceService(responseEntity);
+        return new ResponseEntity<>(
+                mainService.balanceService(accountId),
+                HttpStatus.OK);
     }
 
     @GetMapping("/{accountId}/transactions")
@@ -84,9 +57,9 @@ public class MainController {
             throws JsonProcessingException {
         log.info("UpStream Request [GET][transactions] accountId: " + accountId);
 
-       if(!GenericValidator.isLong(accountId)){
-           throw new IllegalArgumentException("AccountId is not valid");
-       }
+        if (!GenericValidator.isLong(accountId)) {
+            throw new IllegalArgumentException("AccountId is not valid");
+        }
 
         LocalDate fromDate = LocalDate.parse(fromAccountingDate);
         LocalDate toDate = LocalDate.parse(toAccountingDate);
@@ -95,19 +68,9 @@ public class MainController {
             throw new IllegalArgumentException("fromAccountingDate greater than toAccountingDate");
         }
 
-        String transactionsUrl = downstreamUrl + "/" + accountId + "/" + "transactions"
-                + "?" + "fromAccountingDate=" + fromAccountingDate + "&toAccountingDate=" + toAccountingDate;
-
-        ResponseEntity<DownstreamSuccessfulResponsePayloadStandard> responseEntity =
-                restTemplate.exchange(
-                        transactionsUrl,
-                        HttpMethod.GET,
-                        Utilityz.buildHttpEntity(),
-                        DownstreamSuccessfulResponsePayloadStandard.class);
-
-        log.info(String.format("DownStream Response [%s] %s", responseEntity.getStatusCode(), Utilityz.json(responseEntity.getBody())));
-
-        return mainService.transactionService(responseEntity);
+        return new ResponseEntity<>(
+                mainService.moneyTransferService(accountId, fromDate, toDate),
+                HttpStatus.OK);
     }
 
 
@@ -120,27 +83,12 @@ public class MainController {
             throws JsonProcessingException {
         log.info("UpStream Request [POST][moneyTransfer] accountId: {} payload: {}", accountId, Utilityz.json(createMoneyTrasferPayload));
 
-        if(!GenericValidator.isLong(accountId)){
+        if (!GenericValidator.isLong(accountId)) {
             throw new IllegalArgumentException("AccountId is not valid");
         }
 
-        String moneyTransferUrl = downstreamUrl + "/" + accountId + "/" + "/payments/money-transfers";
-
-        RequestEntity<CreateMoneyTrasferPayload> requestEntity =
-                RequestEntity
-                        .post(URI.create(moneyTransferUrl))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(createMoneyTrasferPayload);
-
-        ResponseEntity<DownstreamSuccessfulResponsePayloadMoneyTransfer> responseEntity =
-                restTemplate.exchange(
-                        requestEntity,
-                        DownstreamSuccessfulResponsePayloadMoneyTransfer.class);
-
-        log.info(String.format("DownStream Response [%s] %s", responseEntity.getStatusCode(), Utilityz.json(responseEntity.getBody())));
-
-        return mainService.moneyTransferService(responseEntity);
-
+        return new ResponseEntity<>(
+                mainService.moneyTransferService(accountId, createMoneyTrasferPayload),
+                HttpStatus.OK);
     }
-
 }

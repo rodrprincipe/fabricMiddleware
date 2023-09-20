@@ -3,6 +3,7 @@ package com.reply.pay.fabrick.fabrickMiddleware.responsePojo.upstream.payload;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -21,6 +22,7 @@ public class CreateMoneyTrasferPayload {
     @NotNull(message = "executionDate required")
     public LocalDate executionDate;
     public String uri;
+    @NotEmpty(message = "description must be not empty")
     @NotNull(message = "description required")
     public String description;
     @NotNull(message = "amount required")
