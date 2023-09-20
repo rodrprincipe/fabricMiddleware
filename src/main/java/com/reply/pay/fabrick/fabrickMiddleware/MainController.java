@@ -6,7 +6,9 @@ import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.Downstrea
 import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamSuccessfulResponsePayloadStandard;
 import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.payload.PayloadBalance;
 import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.upstream.payload.CreateMoneyTrasferPayload;
+import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.validator.GenericValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.time.LocalDate;
 
 @Controller
 @RequestMapping("/bankAccount")
@@ -56,6 +59,10 @@ public class MainController {
     public ResponseEntity<PayloadBalance> balance(@PathVariable String accountId) throws JsonProcessingException {
         log.info("UpStream Request [GET][balance] accountId: " + accountId);
 
+        if(!GenericValidator.isLong(accountId)){
+            throw new IllegalArgumentException("AccountId is not valid");
+        }
+
         String balanceUrl = downstreamUrl + "/" + accountId + "/balance";
 
         ResponseEntity<DownstreamSuccessfulResponsePayloadBalance> responseEntity =
@@ -77,6 +84,16 @@ public class MainController {
             throws JsonProcessingException {
         log.info("UpStream Request [GET][transactions] accountId: " + accountId);
 
+       if(!GenericValidator.isLong(accountId)){
+           throw new IllegalArgumentException("AccountId is not valid");
+       }
+
+        LocalDate fromDate = LocalDate.parse(fromAccountingDate);
+        LocalDate toDate = LocalDate.parse(toAccountingDate);
+
+        if (fromDate.isAfter(toDate)) {
+            throw new IllegalArgumentException("fromAccountingDate greater than toAccountingDate");
+        }
 
         String transactionsUrl = downstreamUrl + "/" + accountId + "/" + "transactions"
                 + "?" + "fromAccountingDate=" + fromAccountingDate + "&toAccountingDate=" + toAccountingDate;
@@ -99,9 +116,13 @@ public class MainController {
             consumes = "application/json",
             produces = "application/json")
     public ResponseEntity<?> moneyTransfer(@PathVariable String accountId,
-                                           @RequestBody CreateMoneyTrasferPayload createMoneyTrasferPayload)
+                                           @RequestBody @Valid CreateMoneyTrasferPayload createMoneyTrasferPayload)
             throws JsonProcessingException {
-        log.info("UpStream Request [POST][moneyTransfer] accountId: " + accountId);
+        log.info("UpStream Request [POST][moneyTransfer] accountId: {} payload: {}", accountId, Utilityz.json(createMoneyTrasferPayload));
+
+        if(!GenericValidator.isLong(accountId)){
+            throw new IllegalArgumentException("AccountId is not valid");
+        }
 
         String moneyTransferUrl = downstreamUrl + "/" + accountId + "/" + "/payments/money-transfers";
 

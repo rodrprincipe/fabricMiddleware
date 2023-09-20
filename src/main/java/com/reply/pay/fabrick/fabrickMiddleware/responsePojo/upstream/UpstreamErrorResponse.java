@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -44,6 +45,13 @@ public class UpstreamErrorResponse {
         this.code = ex.getCode();
         this.description = ex.getDescription();
 //        this.api = ex.getApi();
+        this.path = path;
+    }
+
+    public UpstreamErrorResponse(RuntimeException ex, String path) {
+        this.timestamp = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(LocalDateTime.now());
+        this.status = HttpStatus.BAD_REQUEST.value();
+        this.error = ex.getMessage();
         this.path = path;
     }
 }
