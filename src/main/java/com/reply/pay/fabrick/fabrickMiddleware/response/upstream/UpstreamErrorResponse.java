@@ -1,4 +1,4 @@
-package com.reply.pay.fabrick.fabrickMiddleware.responsePojo.upstream;
+package com.reply.pay.fabrick.fabrickMiddleware.response.upstream;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.reply.pay.fabrick.fabrickMiddleware.exception.RestServiceException;

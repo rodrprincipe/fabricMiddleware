@@ -1,4 +1,4 @@
-package com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.payload;
+package com.reply.pay.fabrick.fabrickMiddleware.payload;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

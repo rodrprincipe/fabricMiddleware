@@ -1,4 +1,4 @@
-package com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream;
+package com.reply.pay.fabrick.fabrickMiddleware.response.downstream;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

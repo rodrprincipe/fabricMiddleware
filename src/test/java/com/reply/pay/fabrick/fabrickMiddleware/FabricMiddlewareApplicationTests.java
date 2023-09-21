@@ -1,10 +1,10 @@
 package com.reply.pay.fabrick.fabrickMiddleware;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.payload.PayloadBalance;
-import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.payload.PayloadMoneyTransfer;
-import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.payload.PayloadStandard;
-import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.upstream.UpstreamErrorResponse;
+import com.reply.pay.fabrick.fabrickMiddleware.payload.PayloadBalance;
+import com.reply.pay.fabrick.fabrickMiddleware.payload.PayloadMoneyTransfer;
+import com.reply.pay.fabrick.fabrickMiddleware.payload.PayloadStandard;
+import com.reply.pay.fabrick.fabrickMiddleware.response.upstream.UpstreamErrorResponse;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Test;

@@ -1,12 +1,14 @@
-package com.reply.pay.fabrick.fabrickMiddleware.responsePojo.upstream.payload;
+package com.reply.pay.fabrick.fabrickMiddleware.payload;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.NotNull;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
@@ -15,7 +17,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class CreateMoneyTrasferPayload {
+public class PayloadCreateMoneyTrasfer {
     @Valid
     @NotNull(message = "creditor required")
     public Creditor creditor;

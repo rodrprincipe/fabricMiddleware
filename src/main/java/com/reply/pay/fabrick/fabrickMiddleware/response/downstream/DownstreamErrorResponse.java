@@ -1,4 +1,4 @@
-package com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream;
+package com.reply.pay.fabrick.fabrickMiddleware.response.downstream;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;

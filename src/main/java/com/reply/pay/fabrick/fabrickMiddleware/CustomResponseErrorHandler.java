@@ -3,7 +3,7 @@ package com.reply.pay.fabrick.fabrickMiddleware;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.reply.pay.fabrick.fabrickMiddleware.exception.NotFoundException;
 import com.reply.pay.fabrick.fabrickMiddleware.exception.RestServiceException;
-import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.DownstreamErrorResponse;
+import com.reply.pay.fabrick.fabrickMiddleware.response.downstream.DownstreamErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;

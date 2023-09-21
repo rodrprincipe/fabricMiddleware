@@ -1,8 +1,8 @@
 package com.reply.pay.fabrick.fabrickMiddleware;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.downstream.payload.PayloadBalance;
-import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.upstream.payload.CreateMoneyTrasferPayload;
+import com.reply.pay.fabrick.fabrickMiddleware.payload.PayloadBalance;
+import com.reply.pay.fabrick.fabrickMiddleware.payload.PayloadCreateMoneyTrasfer;
 import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.validator.GenericValidator;
@@ -17,9 +17,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 
+@Log4j2
 @Controller
 @RequestMapping("/bankAccount")
-@Log4j2
 public class MainController {
     @Value("${spring.application.name}")
     String appName;
@@ -55,7 +55,7 @@ public class MainController {
                                           @RequestParam String fromAccountingDate,
                                           @RequestParam String toAccountingDate)
             throws JsonProcessingException {
-        log.info("UpStream Request [GET][transactions] accountId: " + accountId);
+        log.info("UpStream Request [GET][transactions] accountId: {} | from: {} | to: {} ", accountId, fromAccountingDate, toAccountingDate);
 
         if (!GenericValidator.isLong(accountId)) {
             throw new IllegalArgumentException("AccountId is not valid");
@@ -69,7 +69,7 @@ public class MainController {
         }
 
         return new ResponseEntity<>(
-                mainService.moneyTransferService(accountId, fromDate, toDate),
+                mainService.transactionsService(accountId, fromDate, toDate),
                 HttpStatus.OK);
     }
 
@@ -79,7 +79,7 @@ public class MainController {
             consumes = "application/json",
             produces = "application/json")
     public ResponseEntity<?> moneyTransfer(@PathVariable String accountId,
-                                           @RequestBody @Valid CreateMoneyTrasferPayload createMoneyTrasferPayload)
+                                           @RequestBody @Valid PayloadCreateMoneyTrasfer createMoneyTrasferPayload)
             throws JsonProcessingException {
         log.info("UpStream Request [POST][moneyTransfer] accountId: {} payload: {}", accountId, Utilityz.json(createMoneyTrasferPayload));
 

@@ -1,13 +1,12 @@
 package com.reply.pay.fabrick.fabrickMiddleware;
 
 import com.reply.pay.fabrick.fabrickMiddleware.exception.RestServiceException;
-import com.reply.pay.fabrick.fabrickMiddleware.responsePojo.upstream.UpstreamErrorResponse;
+import com.reply.pay.fabrick.fabrickMiddleware.response.upstream.UpstreamErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.log4j.Log4j2;
 import org.apache.catalina.connector.RequestFacade;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
