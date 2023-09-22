@@ -7,9 +7,12 @@ Fabrick Middleware provides a connection layer to endpoints for bank account ope
 
 ## Installation
 
-To run the project locally we can install the [Maven Wrapper plugin](https://maven.apache.org/wrapper/maven-wrapper-plugin/)
-
 The wrapper should work with different operating systems such as:
+- linux
+- macOs
+- windows
+
+To run the project locally we can install the [Maven Wrapper plugin](https://maven.apache.org/wrapper/maven-wrapper-plugin/)
 
 After that, we can run our goals like this for the Unix system:
 

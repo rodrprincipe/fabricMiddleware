@@ -14,7 +14,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PayloadMoneyTransfer {
+public class MoneyTransfer {
     public String moneyTransferId;
     public String status;
     public String direction;

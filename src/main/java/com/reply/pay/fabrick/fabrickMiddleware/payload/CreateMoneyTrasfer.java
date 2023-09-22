@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PayloadCreateMoneyTrasfer {
+public class CreateMoneyTrasfer {
     @Valid
     @NotNull(message = "creditor required")
     public Creditor creditor;

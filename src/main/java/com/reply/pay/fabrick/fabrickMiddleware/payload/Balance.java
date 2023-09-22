@@ -12,7 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PayloadBalance {
+public class Balance {
     private String date;
     private double balance;
     private double availableBalance;

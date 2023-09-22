@@ -1,14 +1,14 @@
 package com.reply.pay.fabrick.fabrickMiddleware;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.reply.pay.fabrick.fabrickMiddleware.payload.PayloadBalance;
-import com.reply.pay.fabrick.fabrickMiddleware.payload.PayloadCreateMoneyTrasfer;
+import com.reply.pay.fabrick.fabrickMiddleware.payload.Balance;
+import com.reply.pay.fabrick.fabrickMiddleware.payload.CreateMoneyTrasfer;
+import com.reply.pay.fabrick.fabrickMiddleware.payload.Transaction;
 import jakarta.validation.Valid;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.validator.GenericValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -16,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 @Log4j2
 @Controller
@@ -27,8 +28,8 @@ public class MainController {
     private final MainService mainService;
 
     @Autowired
-    public MainController(RestTemplateBuilder builder) {
-        this.mainService = new MainService(builder);
+    public MainController(MainService mainService) {
+        this.mainService = mainService;
     }
 
     @GetMapping("/")
@@ -38,7 +39,7 @@ public class MainController {
     }
 
     @GetMapping("/{accountId}/balance")
-    public ResponseEntity<PayloadBalance> balance(@PathVariable String accountId) throws JsonProcessingException {
+    public ResponseEntity<Balance> balance(@PathVariable String accountId) throws JsonProcessingException {
         log.info("UpStream Request [GET][balance] accountId: " + accountId);
 
         if (!GenericValidator.isLong(accountId)) {
@@ -46,14 +47,14 @@ public class MainController {
         }
 
         return new ResponseEntity<>(
-                mainService.balanceService(accountId),
+                mainService.getBalance(accountId),
                 HttpStatus.OK);
     }
 
     @GetMapping("/{accountId}/transactions")
-    public ResponseEntity<?> transactions(@PathVariable String accountId,
-                                          @RequestParam String fromAccountingDate,
-                                          @RequestParam String toAccountingDate)
+    public ResponseEntity<ArrayList<Transaction>> transactions(@PathVariable String accountId,
+                                                               @RequestParam String fromAccountingDate,
+                                                               @RequestParam String toAccountingDate)
             throws JsonProcessingException {
         log.info("UpStream Request [GET][transactions] accountId: {} | from: {} | to: {} ", accountId, fromAccountingDate, toAccountingDate);
 
@@ -69,7 +70,7 @@ public class MainController {
         }
 
         return new ResponseEntity<>(
-                mainService.transactionsService(accountId, fromDate, toDate),
+                mainService.getTransactions(accountId, fromDate, toDate),
                 HttpStatus.OK);
     }
 
@@ -79,7 +80,7 @@ public class MainController {
             consumes = "application/json",
             produces = "application/json")
     public ResponseEntity<?> moneyTransfer(@PathVariable String accountId,
-                                           @RequestBody @Valid PayloadCreateMoneyTrasfer createMoneyTrasferPayload)
+                                           @RequestBody @Valid CreateMoneyTrasfer createMoneyTrasferPayload)
             throws JsonProcessingException {
         log.info("UpStream Request [POST][moneyTransfer] accountId: {} payload: {}", accountId, Utilityz.json(createMoneyTrasferPayload));
 
@@ -88,7 +89,7 @@ public class MainController {
         }
 
         return new ResponseEntity<>(
-                mainService.moneyTransferService(accountId, createMoneyTrasferPayload),
+                mainService.performMoneyTransfer(accountId, createMoneyTrasferPayload),
                 HttpStatus.OK);
     }
 }

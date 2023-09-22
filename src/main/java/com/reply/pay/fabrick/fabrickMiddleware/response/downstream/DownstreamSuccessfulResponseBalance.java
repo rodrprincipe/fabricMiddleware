@@ -1,6 +1,6 @@
 package com.reply.pay.fabrick.fabrickMiddleware.response.downstream;
 
-import com.reply.pay.fabrick.fabrickMiddleware.payload.PayloadBalance;
+import com.reply.pay.fabrick.fabrickMiddleware.payload.Balance;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +12,6 @@ import lombok.Setter;
 @AllArgsConstructor
 //@JsonIgnoreProperties(ignoreUnknown = true)
 public class DownstreamSuccessfulResponseBalance extends DownstreamSuccessfulResponse {
-    private PayloadBalance payload;
+    private Balance payload;
 
 }

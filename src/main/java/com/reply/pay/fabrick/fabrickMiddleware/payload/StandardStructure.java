@@ -14,7 +14,7 @@ import java.util.ArrayList;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PayloadStandard<T> {
+public class StandardStructure<T> {
 
     public ArrayList<T> list;
     public Pagination pagination;

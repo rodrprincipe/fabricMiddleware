@@ -1,6 +1,6 @@
 package com.reply.pay.fabrick.fabrickMiddleware.response.downstream;
 
-import com.reply.pay.fabrick.fabrickMiddleware.payload.PayloadStandard;
+import com.reply.pay.fabrick.fabrickMiddleware.payload.StandardStructure;
 import com.reply.pay.fabrick.fabrickMiddleware.payload.Transaction;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,6 +13,6 @@ import lombok.Setter;
 @AllArgsConstructor
 //@JsonIgnoreProperties(ignoreUnknown = true)
 public class DownstreamSuccessfulResponseTransactions extends DownstreamSuccessfulResponse {
-    private PayloadStandard<Transaction> payload;
+    private StandardStructure<Transaction> payload;
 
 }
