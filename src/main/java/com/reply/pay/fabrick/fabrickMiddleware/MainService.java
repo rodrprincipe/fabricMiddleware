@@ -20,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.URI;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -28,10 +27,14 @@ import java.util.Objects;
 @Log4j2
 @Service
 public class MainService {
+    @Value("${service.baseUrl}")
+    public String baseUrl;
 
     private final RestTemplate restTemplate;
 
-    public MainService(@Value("${service.baseUrl}") String baseUrl, RestTemplateBuilder builder) {
+    @Autowired
+    public MainService(RestTemplateBuilder builder) {
+        log.info(builder);
         this.restTemplate = builder.rootUri(baseUrl)
                 .errorHandler(new CustomResponseErrorHandler())
                 .defaultHeader("Auth-Schema", "S2S")

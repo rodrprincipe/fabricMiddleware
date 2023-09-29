@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class Utilityz {
-    static HttpEntity<String> buildHttpEntity() {
+    static HttpEntity<?> buildHttpEntity() {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 

@@ -1,9 +1,9 @@
 package com.reply.pay.fabrick.fabrickMiddleware;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.reply.pay.fabrick.fabrickMiddleware.payload.PayloadBalance;
-import com.reply.pay.fabrick.fabrickMiddleware.payload.PayloadMoneyTransfer;
-import com.reply.pay.fabrick.fabrickMiddleware.payload.PayloadStandard;
+import com.reply.pay.fabrick.fabrickMiddleware.payload.Balance;
+import com.reply.pay.fabrick.fabrickMiddleware.payload.MoneyTransfer;
+import com.reply.pay.fabrick.fabrickMiddleware.payload.StandardStructure;
 import com.reply.pay.fabrick.fabrickMiddleware.response.upstream.UpstreamErrorResponse;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
@@ -36,7 +36,7 @@ class FabricMiddlewareApplicationTests {
         final Response response = RestAssured.get(API_ROOT + "/" + ACCOUNT_ID_OK + "/balance");
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
 
-        PayloadBalance payloadBalance = Utilityz.mapStringToClass(response.getBody().asString(), PayloadBalance.class);
+        Balance payloadBalance = Utilityz.mapStringToClass(response.getBody().asString(), Balance.class);
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         assertEquals(payloadBalance.getDate(), LocalDate.now().format(formatter));
@@ -96,7 +96,7 @@ class FabricMiddlewareApplicationTests {
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
 
 
-        PayloadStandard payloadGeneric = Utilityz.mapStringToClass(response.getBody().asString(), PayloadStandard.class);
+        StandardStructure payloadGeneric = Utilityz.mapStringToClass(response.getBody().asString(), StandardStructure.class);
         assertTrue(payloadGeneric.getList().isEmpty());
     }
 
@@ -106,7 +106,7 @@ class FabricMiddlewareApplicationTests {
                 "/transactions?fromAccountingDate=2019-01-28&toAccountingDate=2019-01-28");
         assertEquals(HttpStatus.FORBIDDEN.value(), response.getStatusCode());
 
-        PayloadStandard payloadGeneric = Utilityz.mapStringToClass(response.getBody().asString(), PayloadStandard.class);
+        StandardStructure payloadGeneric = Utilityz.mapStringToClass(response.getBody().asString(), StandardStructure.class);
         assertFalse(payloadGeneric.getList().isEmpty());
     }
 
@@ -121,7 +121,7 @@ class FabricMiddlewareApplicationTests {
 
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
 
-        PayloadStandard payloadGeneric = Utilityz.mapStringToClass(response.getBody().asString(), PayloadStandard.class);
+        StandardStructure payloadGeneric = Utilityz.mapStringToClass(response.getBody().asString(), StandardStructure.class);
         assertFalse(payloadGeneric.getList().isEmpty());
     }
 
@@ -136,7 +136,7 @@ class FabricMiddlewareApplicationTests {
 
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR.value(), response.getStatusCode());
 
-        PayloadMoneyTransfer payloadMoneyTransfer = Utilityz.mapStringToClass(response.getBody().asString(), PayloadMoneyTransfer.class);
+        MoneyTransfer payloadMoneyTransfer = Utilityz.mapStringToClass(response.getBody().asString(), MoneyTransfer.class);
         assertNotNull(payloadMoneyTransfer.getMoneyTransferId());
     }
 
