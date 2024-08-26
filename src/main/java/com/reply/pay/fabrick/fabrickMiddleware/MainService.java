@@ -27,13 +27,11 @@ import java.util.Objects;
 @Log4j2
 @Service
 public class MainService {
-    @Value("${service.baseUrl}")
-    public String baseUrl;
 
     private final RestTemplate restTemplate;
 
     @Autowired
-    public MainService(RestTemplateBuilder builder) {
+    public MainService(@Value("${service.baseUrl}") String baseUrl, RestTemplateBuilder builder) {
         log.info(builder);
         this.restTemplate = builder.rootUri(baseUrl)
                 .errorHandler(new CustomResponseErrorHandler())
@@ -75,7 +73,7 @@ public class MainService {
         return Objects.requireNonNull(responseEntity.getBody()).getPayload().getList();
     }
 
-    MoneyTransfer performMoneyTransfer(String accountId, @Valid CreateMoneyTrasfer createMoneyTrasferPayload) throws JsonProcessingException {
+    MoneyTransfer performMoneyTransfer(String accountId, @Valid CreateMoneyTrasfer createMoneyTransferPayload) throws JsonProcessingException {
         log.info("Entering Money Transfer Service");
 
         String moneyTransferUrl = "/" + accountId + "/payments/money-transfers";
@@ -84,7 +82,7 @@ public class MainService {
                 RequestEntity
                         .post(moneyTransferUrl)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .body(createMoneyTrasferPayload);
+                        .body(createMoneyTransferPayload);
 
         ResponseEntity<DownstreamSuccessfulResponseMoneyTransfer> responseEntity =
                 restTemplate.exchange(
